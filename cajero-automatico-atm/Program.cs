@@ -18,7 +18,7 @@ decimal saldo = 10000m;
     {
         Console.WriteLine("*****************BIENBENIDO AL CAJERO AUTOMATICO 'ATM'*****************\n");
 
-        Console.WriteLine($"\n {nombre} Selecciona la opcion deseada\n");
+        
 
         Console.WriteLine("" +
             "1-Ver info de la cuenta\n" +
@@ -27,7 +27,7 @@ decimal saldo = 10000m;
             "4-Salir");
 
 
-
+        Console.Write($"\n{nombre} Selecciona la opcion deseada: ");
         opcion = int.Parse(Console.ReadLine());
 
         switch (opcion)
