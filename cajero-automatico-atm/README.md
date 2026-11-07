@@ -1,5 +1,5 @@
 
-Este proyecto es la segunda versión de mi cajero automático en consola, hecho en C# (.NET 8). Partí del Mini ATM V1 y lo evolucioné en dos etapas: primero reorganicé el código en métodos, y después agregué un historial de movimientos.
+Este proyecto es la segunda versión de mi cajero automático en consola.
 
 #Qué hace el programa
 
