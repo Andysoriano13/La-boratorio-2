@@ -1,41 +1,38 @@
-﻿using System.Diagnostics;
-
-
-Console.Write("Por favor ingresa tu nombre: ");
-string nombre = Console.ReadLine();
-
-Console.Write("Por favor ingresa tu numero de cuenta: ");
-string nCuenta = Console.ReadLine();
+﻿
 bool estado = false;
-decimal saldo = 10000m;
+decimal saldo = 5000m;
+
+List<string> movimientos = new List<string>();
 
 
 
-//FUNCION DEL MENU PRINCIPAL
-void Menu()
+//FUNCION DEL MENU PRINCIPAL.................................................................................
+void MostrarMenu()
 {
     int opcion;
+    bool salir = false;
 
     do
     {
-        Console.WriteLine("*****************BIENBENIDO AL CAJERO AUTOMATICO 'ATM'*****************\n");
+        Console.WriteLine("*****************BIENVENIDO AL CAJERO AUTOMATICO 'ATM'*****************\n");
 
 
 
         Console.WriteLine("" +
-            "1-Ver info de la cuenta\n" +
+            "1-Consultar saldo\n" +
             "2-Depositar\n" +
             "3-Retirar\n" +
-            "4-Salir");
+            "4-Consultar moviminetos de cuenta \n" +
+            "5-Salir");
 
 
-        Console.Write($"\n{nombre} Selecciona la opcion deseada: ");
+        Console.Write($"\nSelecciona la opcion deseada: ");
         if (int.TryParse(Console.ReadLine(), out opcion))
         {
             switch (opcion)
             {
                 case 1:
-                    verInfo();
+                    ConsultarSaldo();
                     break;
                 case 2:
                     Depositar();
@@ -44,7 +41,10 @@ void Menu()
                     Retirar();
                     break;
                 case 4:
-                    Salir();
+                    MostrarMovimientos();
+                    break;
+                case 5:
+                    salir = true;
                     break;
                 default:
                     Console.WriteLine("Opcion no valida");
@@ -57,7 +57,9 @@ void Menu()
 
 
 
-    } while (opcion != 4);
+
+
+    } while (!salir);
 
 
 
@@ -65,142 +67,175 @@ void Menu()
 
 
 
-//FUNCION PARA VER INFORMACION SOBRE LA CUENTA DEL CLIENTE
-void verInfo()
+//FUNCION PARA VER INFORMACION SOBRE LA CUENTA DEL CLIENTE...........................................................
+void ConsultarSaldo()
 {
-    Console.WriteLine("\n**********************************************************************************************");
-    Console.WriteLine("\t\t{0,-15}{1,-20}{2,-20}{3,-10}", "NOMBRE", "NUMERO DE CUENTA", "ESTADO DE CUENTA", "SALDO");
-    Console.WriteLine("\t\t{0,-15}{1,-20}{2,-20}{3,-10:N2}", nombre, nCuenta, estado, saldo);
-    Console.WriteLine("************************************************************************************************\n");
 
-    SeguirDentro();
+    Console.WriteLine($"Su saldo es:  {saldo:N2}");
 }
 
 
 
-// FUNCION HACER DEPOSITOS EN LA CUENTA 
+// FUNCION HACER DEPOSITOS EN LA CUENTA ...................................................................
 
 void Depositar()
+
 {
 
-    Console.Write("Ingresa la cantidad a depositar: ");
-    decimal cantidad = decimal.Parse(Console.ReadLine());
-
-    if (estado == false) ActivarCuenta();
-    
-    else
+    if (estado == false)
     {
-        if (cantidad <= 0)
-        {
-            Console.WriteLine("La cantidad a depositar debe ser mayor a cero");
-            Depositar();
-
-        }
-        else
-        {
-            saldo += cantidad;
-            Console.WriteLine($"Deposito realizado, su nuevo saldo es: {saldo:N2}");
-            SeguirDentro();
-
-
-
-
-        }
-
+        Console.Write("Cuenta inactiva, para continuar debe activar [si/no]: ");
+        string activarCuenta = Console.ReadLine().ToLower();
+        ActivarCuenta(activarCuenta);
     }
 
-}
-
-
-//FUENCION PARA RETIRAR DINERO DE LA CUENTA
-
-
-void Retirar()
-{
-    Console.Write("Ingresa la cantidad a retirar: ");
-    decimal cantidad = decimal.Parse(Console.ReadLine());
-
-    if (estado == false) ActivarCuenta();
-
-
     else
     {
-        if (cantidad > saldo)
-        {
-            Console.WriteLine("Saldo insufciente, intentalo de nuevo.");
-            Retirar();
-        }
+        decimal cantidad = LeerMonto();
+        if (cantidad <= 0) Console.WriteLine("El monto a depositar debe der ser mayor a cero");
+
         else
         {
+            if (cantidad > 0)
+            {
+                saldo += cantidad;
+                Console.WriteLine($"Deposito realizado, su nuevo saldo es: {saldo:N2}");
+                RegistrarMovimiento(cantidad, "deposito");
+
+            }
+
+
+        }
+    }
+}
+
+    //FUENCION PARA RETIRAR DINERO DE LA CUENTA..................................................................
+
+
+    void Retirar()
+    {
+
+
+        if (estado == false)
+        {
+            Console.Write("Cuenta inactiva, para continuar debe activar [si/no]: ");
+            string activarCuenta = Console.ReadLine().ToLower();
+            ActivarCuenta(activarCuenta);
+        }
+
+
+
+        else
+        {
+            decimal cantidad = LeerMonto();
             if (cantidad <= 0)
             {
                 Console.WriteLine("La cantidad a retirar debe ser mayor a cero, intentalo de nuevo");
-                Retirar();
+
             }
             else
             {
-                saldo -= cantidad;
-                Console.WriteLine($"Retiro realizado, su nuevo saldo es: {saldo:N2}");
+                if (cantidad > saldo)
+                {
+                    Console.WriteLine("Fondos insuficientes...");
+                }
+                else
+                {
+                    saldo -= cantidad;
+                    Console.WriteLine($"Retiro realizado, su nuevo saldo es: {saldo:N2}");
+                    RegistrarMovimiento(cantidad, "retiro");
 
-                SeguirDentro();
+                }
 
 
             }
         }
-    }
-
-}
 
 
-//SALIR DEL MENU
-
-void Salir()
-{
-    Console.WriteLine("*******GRACIAS POR UTILIZAR EL SERVICO*******");
-    Environment.Exit(0);
-}
-
-
-
-//OPCION PARA ACTIVAR LA CUENTA CUANDO SE ENCUENTRA INACTIVA
-void ActivarCuenta()
-{
-    Console.Write("Tu cuenta esta inactiva, deceas activarla [si/no]: ");
-
-    string activarCuenta = Console.ReadLine().ToLower();
-    if (activarCuenta == "si")
-    {
-        estado = true;
-        Console.WriteLine("\n**********************************************");
-        Console.WriteLine("CUENTA ACTIVADA, REALIZA LA ACCION NUEVAMENTE");
-        Console.WriteLine("**********************************************\n");
-
-        Menu();
     }
 
 
-}
 
-// OPCION PARA SABER SI SEGUIR DENTRO O FUERA DEL MENU
-
-void SeguirDentro()
-{
-    Console.Write("\nDeseas realizar otra operacion [si/no]: ");
-
-    string otraOpcion = Console.ReadLine().ToLower() ;
-    if (otraOpcion == "si") Menu();
-    else
+    //Leer Monto..............................................................................................
+    decimal LeerMonto()
     {
-        if (otraOpcion == "no")
+        Console.Write("Ingresa el valor: ");
+        decimal valor;
+        while (!decimal.TryParse(Console.ReadLine(), out valor))
         {
-            Salir();
+            Console.WriteLine("Valor invalido, intenta de nuevo");
+            Console.Write("Ingresa el valor: ");
         }
-        else Console.WriteLine("Seleccione la opcion correcta");
+
+        return valor;
     }
 
-}
 
-Menu();
+    //Registrar movimineto......................................................................................
+
+    void RegistrarMovimiento(decimal valor, string texto)
+    {
+        if (texto == "retiro")
+        {
+            movimientos.Add(
+            "\nRETIRO REALIZADO \n" + "\n" +
+            "Mondo RD$: " + valor.ToString("N2") + "\n" +
+            "Fecha y hora : " + DateTime.Now.ToString());
+        }
+
+        if (texto == "deposito")
+        {
+            movimientos.Add(
+            "\nDEPOSITO REALIZADO \n" + "\n" +
+            "Mondo RD$: " + valor.ToString("N2") + "\n" +
+            "Fecha y hora : " + DateTime.Now.ToString());
+        }
+
+
+
+    }
+
+    // Mostrar movimientos..........................................................................................
+    void MostrarMovimientos()
+    {
+        if (movimientos.Count == 0)
+        {
+            Console.WriteLine("No hay has realizado ningun movimiento..");
+        }
+        else
+        {
+            foreach (var item in movimientos)
+            {
+                Console.WriteLine(item);
+            }
+
+        }
+
+    }
+
+
+    //Activar Cuenta.................................................................................................
+    void ActivarCuenta(string entrada)
+    {
+        if (entrada == "si")
+        {
+            estado = true;
+            Console.WriteLine("Cuenta activa...");
+        }
+        else
+        {
+            if (entrada == "no")
+            {
+                Console.WriteLine("La cuenta sigue inactiva, debes de activarla para hacer una transaccion");
+            }
+            else
+            {
+                Console.WriteLine("Valor incorrecto");
+            }
+        }
+    }
+
+MostrarMenu();
 
 
 
